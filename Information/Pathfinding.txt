@@ -1,0 +1,117 @@
+Path Finding Project
+
+--User is allowed to provide an n value that will than be used to create an nxn field
+--The user can select portions of said field to create 'block' points that the pathing is not allowed to use
+--The user can select 2 points on the plane, starting point (point A), ending point (point B)
+--Buttons:
+	:showPath indicate the path
+	:placeA State of placing point A
+	:placeB State of placing point B
+
+
+USER EXPERIENCE:
+
+-Application starts, general description of what it does and what the user needs to do. They will be prompted to provided an n >= to some MIN value.
+A plane filled with nXn interactable cells (Perhaps Jbuttons)
+A series of buttons at the top: showPath, placeA (Point A), placeB (Point B), placeObstructions (Names are subject to change)
+placeA - This will indicate the starting point on the plane, color coded GREEN
+placeB - This will indicate the ending point on the plane, color coded RED
+placeObstructions - The user will be allowed to select any number of cells that will be indicated as inaccessible, thus the pathing will avoid utilizing those cells as a solution
+	-Note: If the user provides a path that completely blocks Point A from Point B, provide 		warning
+	-Note: Should the user be allowed to remove selected cells?
+		-Answer, Yes: Utilize right mouse click to indicate selection removal
+	-Note: 
+showPath - This will utilize the shortest pathfinding algorithm, A* pathfinding Algorithm, and find a path from point A to Point B
+	-Note: May need threads, or some type of time related library to display path in real-time
+
+
+
+
+USE CASE:
+
+Basic Use-
+User provideds n value, which that system will create an nxn map/grid. 
+
+The user will then provide the starting point, the target end point, and any blockades.
+
+The system, will create an multidimensional array that should mimick the UI grid.
+
+Utilizing, int value 1 as the starting position, int value 2 as the ending position, and
+int value -1 as any blockade. 
+
+
+System test-
+Indicate all adjacent positions around current node.
+Check whether a node value is 0 or 2 FIRST.
+
+
+
+
+A* Planning:
+
+Adjacent Node Traversal Given current Node-
+1 (1, 1) is current node, find all adjacent nodes.
+
+0 0 0		(1-1, 1-1):-0,0-  (1-1, 1+0):-0,1-  (1-1, 1+1):-0,2-
+
+0 1 0		(1+0, 1-1):-1,0-  (1+0, 1+0):-1,1-  (1+0, 1+1):-1,2-
+
+0 0 0		(1+1, 1-1):-2,0-  (1+1, 1+0):-2,1-  (1+1, 1+1):-2,2-
+
+Indicating all diagonal cells within the tested adjacent nodes: (-1, -1) (-1, 1) (1, -1) (1, 1)
+
+Formula to find distance from between 2 poins in a plane:
+sqrt((x2-x1)**2 + (y2-y1)**2)
+
+sqrt((3-0)**2 + (3-1)**2) ~ 3.61
+sqrt((0-0)**2 + (0-1)**2) ~ 1
+
+
+I must determine the value of each move. 
+A simple Directional move should be worth 1 space.
+Now, a directional move towards the nw sw ne se direction; Should this be worth more?
+Without such a restriction, the shortest path will almost always utilize angled directional
+movement. Ponder on this topic tomorrow and decide the preferred solution.
+ 
+
+
+Frame Building:
+
+N value must be bigger than 1, and for now smaller than 9.
+Ensure that the inputted value is an integer
+
+
+
+How to translate the position in the map to the position in the container?:
+Say we are at (2,2) on the map - We need to:
+	A- Find it's position relative to the container
+	B- Find the position of the other 0-8 nodes around our current node
+
+Note- Position in the container starts at 0, not 1!
+
+A: Say nxn n = 5, the size of the array is 5x5. ((x*n)-1) + y+1
+In our scenario: ((2*5)-1) + (2 + 1) = 12 This is correct!
+
+Now...The other 0-8 positions
+The same formula should work with all nodes. 
+As the nodes are selected as an option in the getAdjacentNodes method, call a function whose purpose is the return it's postition. Mostlikely use an ArrayList to get the job done.
+Note- The position is equally unique as the nodePosition (xy)
+
+
+Once this project is done, learn why not to use, or rely too heavily on, arrayList.
+
+
+A* Path Finding Algo 2.0
+
+Consider utlizing a strategy where you find the path of all the start node's childeren to the target node, determining which has the smallest overall F and choose that as the final output. 
+
+For example, startNode- (0,0) childrenNodes- (0,1) (1,1) (1,0) targetNode- (9,9)
+
+Say the path from (0,1) to (9,9) has a total F of 876, while (1,1) has an F of 773, and (1,0) F of 803
+The algo should return the pather of (1,1). 
+Now, rather than saving all the paths, in an arrayList or array, save only the path that contains the smallest path. 
+If path (0, 1) is stored first, then it is determined that path (1,1) has a smaller F, path (1,1) replaces the stored path of (0,1), but then path (1,0) that has a bigger F than path (1,1) does not replace the stored path of (1,1).
+Once all nodes have been tested, return the stored path.
+!!!!Rather than going to the end where the target node is, the moment a node that has been added makes the currently tested path's F bigger than the stored path's F, ignore that path and move on to the next tested path.!!!!
+
+Problems: Time complexity will be terrible, at the worst case, the path of every node needs to be determined, which could take a rather long time, the current algo isn't perfect, but it is fast.
